@@ -7,7 +7,6 @@ import {
     Delete,
     Put,
     UseGuards,
-    UseInterceptors,
     Logger,
     InternalServerErrorException,
 } from '@nestjs/common';
@@ -25,8 +24,6 @@ import { UserEntity } from './entities/user.entity';
 
 @Controller('users')
 @ApiTags('users')
-@CacheTTL(30000)
-@UseInterceptors(CacheInterceptor)
 export class UserController {
     private readonly logger = new Logger(UserController.name);
 
@@ -41,25 +38,6 @@ export class UserController {
                 `User : Création de l'utilisateur ${createUserDto.email}`,
             );
             return new UserEntity(await this.userService.create(createUserDto));
-        } catch (e) {
-            this.logger.error(` ${e.message}`);
-            throw new InternalServerErrorException(e.message);
-        }
-    }
-
-    @Post('/subscribe')
-    @ApiBearerAuth()
-    @ApiCreatedResponse({ description: 'Subscribe user to plan' })
-    async subscribe(@Body() createPaymentDto: CreatePaymentDto) {
-        try {
-            this.logger.log(
-                `User : Souscription de l'utilisateur ${createPaymentDto.userId}`,
-            );
-            const url = await this.userService.subscribeUserToPlan(
-                createPaymentDto.lookupKey,
-                createPaymentDto.userId,
-            );
-            return url;
         } catch (e) {
             this.logger.error(` ${e.message}`);
             throw new InternalServerErrorException(e.message);
@@ -84,27 +62,12 @@ export class UserController {
     }
 
     @Get(':id')
-    @UseGuards(ApiKeyGuard)
     @ApiBearerAuth()
     @ApiOkResponse({ description: 'Get user by id', type: UserEntity })
     findOneUser(@Param('id') id: string) {
         try {
             this.logger.log(`USER: Récupération de l'utilisateur ${id}`);
             return this.userService.findOne(id);
-        } catch (e) {
-            this.logger.error(` ${e.message}`);
-            throw new InternalServerErrorException(e.message);
-        }
-    }
-
-    @Get(':userId/api-key')
-    // @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @ApiOkResponse({ description: 'Get my profile', type: UserEntity })
-    findAPIkey(@Param('id') id: string) {
-        try {
-            this.logger.log(`USER: Récupération de l'utilisateur ${id}`);
-            return this.userService.getOrCreateApiSecretKey(id);
         } catch (e) {
             this.logger.error(` ${e.message}`);
             throw new InternalServerErrorException(e.message);
