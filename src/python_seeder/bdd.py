@@ -1,4 +1,4 @@
-from prisma import PrismaClient
+from prisma import Prisma
 from access_token import get_access_token
 from requests import search_playlist_id, search_playlist
 import sqlite3
@@ -7,7 +7,7 @@ import sqlite3
 access_token = get_access_token()
 
 # Initialisez le client Prisma
-prisma = PrismaClient()
+prisma = Prisma()
 
 playlist_name = ["Pop mix", "Rock", "Années 80", "Années 90", "Musique de film", "Jazz", "R&B", "Country", "Dubstep",
                  "Hip-Hop", "Rap", "Rap Francais", "Rap US", "Beurette à chicha", "Funk", "Années 2000", "Afrotrap",
@@ -22,22 +22,6 @@ for theme_only in playlist_name:
     print(playlist_id)
 
     result_playlist = search_playlist(access_token, str(playlist_id))
-
-    # Connect to the database
-    conn = sqlite3.connect("spotify_tracks.db")
-    cursor = conn.cursor()
-
-    # Create the table if it doesn't exist
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tracks (
-            track_id TEXT PRIMARY KEY,
-            name TEXT,
-            artist TEXT,
-            preview_url TEXT,
-            image_url TEXT,
-            theme TEXT
-        )
-    ''')
 
     # Loop through each track in the playlist
     for track_info in result_playlist.get("tracks", {}).get("items", []):
@@ -64,12 +48,3 @@ for theme_only in playlist_name:
             print(f"URL de prévisualisation: {preview_url}")
             print(f"URL de l'image: {image_url}")
             print("\n")
-
-    # Commit the changes to the database
-    conn.commit()
-
-    # Close the connection to the database
-    conn.close()
-
-# Fermez la connexion à la base de données Prisma
-prisma.disconnect()

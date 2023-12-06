@@ -22,7 +22,7 @@ model User {
 
 model Track {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
-  track_id     String
+  track_id     String @unique
   name         String
   artist       String
   preview_url  String
