@@ -16,8 +16,31 @@ model User {
   lastName         String
   email            String        @unique
   password         String
+  sessions         RefreshToken?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+}
+
+model LockoutInformation {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userEmail    String
+  lockoutUntil DateTime
+}
+
+model FailedLoginAttempts {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  userEmail String
+  attempts  Int
+}
+
+model RefreshToken {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @unique @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id]) // relation one to one
+  token     String
+  lastUsed  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Track {
