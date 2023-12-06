@@ -21,9 +21,11 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/class-validator": "^0.13.4",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/swagger": "^7.1.16",
     "@prisma/client": "^5.6.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
