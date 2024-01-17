@@ -195,7 +195,8 @@ const main = async () => {
       'Musique indienne',
       'Flamenco',
       'Ambient House',
-      'Star Academy'
+      'Star Academy',
+      'Salsa'
     ];
     let index = 0;
     for (const themeOnly of playlistNames) {
