@@ -12,7 +12,4 @@ export class AuthEntity {
 
   @ApiProperty()
   accessToken: string;
-
-  @ApiProperty()
-  lookupKey: string;
 }

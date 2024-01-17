@@ -1,20 +1,10 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { verifyPassword } from '../utils/auth';
-import { AuthEntity } from './entities/auth.entity';
-import { UserService } from '../user/user.service';
-import {
-  decodeToken,
-  generateAccessToken,
-  generateRefreshToken,
-  isValidateToken,
-} from '../utils/token';
-import { RegisterDto } from './dto/register.dto';
-import * as process from 'process';
+import {Injectable, NotFoundException, UnauthorizedException,} from '@nestjs/common';
+import {PrismaService} from '../prisma/prisma.service';
+import {verifyPassword} from '../utils/auth';
+import {AuthEntity} from './entities/auth.entity';
+import {UserService} from '../user/user.service';
+import {decodeToken, generateAccessToken, generateRefreshToken, isValidateToken,} from '../utils/token';
+import {RegisterDto} from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -81,37 +71,34 @@ export class AuthService {
     // Si l'utilisateur est actuellement verrouillé, réinitialiser le nombre de tentatives échouées
     await this.resetFailedLoginAttempts(email);
 
-    const lookupKey = process.env.STRIPE_PRODUCT_ID;
 
     return {
       id: user.id,
       userName: user.firstName + ' ' + user.lastName,
       accessToken,
-      lookupKey,
     };
   }
 
   /**
    * @description Créer un utilisateur
-   * @param registerDtp
+   * @param registerDto
    */
-  async register(registerDtp: RegisterDto) {
+  async register(registerDto: RegisterDto) {
     // Verifier si le mot de passe et la confirmation du mot de passe correspondent
-    if (registerDtp.password !== registerDtp.confirmPassword) {
+    if (registerDto.password !== registerDto.confirmPassword) {
       throw new UnauthorizedException(
         'Le mot de passe et la confirmation du mot de passe ne correspondent pas',
       );
     }
     // Verifier si l'utilisateur existe déjà
-    const userExists = await this.userService.findOneByEmail(registerDtp.email);
+    const userExists = await this.userService.findOneByEmail(registerDto.email);
     if (userExists && Object.keys(userExists).length) {
       throw new UnauthorizedException(
         'Un utilisateur avec cet email existe déjà',
       );
     }
-    delete registerDtp.confirmPassword;
-    const user = await this.userService.create(registerDtp);
-    return user;
+    delete registerDto.confirmPassword;
+    return await this.userService.create(registerDto);
   }
 
   /**
@@ -145,7 +132,7 @@ export class AuthService {
     const attempts = await this.getFailedLoginAttempts(email);
 
     // Define the maximum allowed failed login attempts
-    const maxAttempts = 3;
+    const maxAttempts = 7;
 
     // Check if the next attempt will exceed the maximum allowed attempts
     if (attempts >= maxAttempts - 1) {
@@ -153,7 +140,7 @@ export class AuthService {
       await this.resetFailedLoginAttempts(email);
 
       // Set the lockout duration to 10 minutes from the current time
-      const lockoutUntil = Date.now() + 10 * 60 * 1000; // 10 minutes in milliseconds
+      const lockoutUntil = Date.now() + 15 * 60 * 1000; // 10 minutes in milliseconds
       await this.setLockoutUntil(email, lockoutUntil);
     } else {
       // Increment the failed login attempts count
