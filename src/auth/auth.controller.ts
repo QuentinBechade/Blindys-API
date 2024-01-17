@@ -72,3 +72,5 @@ export class AuthController {
         }
     }
 }
+
+// test add azur
