@@ -48,7 +48,7 @@ const searchPlaylistId = async (token, playlistName) => {
   const params = new URLSearchParams({
     q: playlistName,
     type: 'playlist',
-    limit: '1',
+    limit: '30',
   });
 
   const options = {
@@ -122,6 +122,15 @@ const main = async () => {
       'Rock',
       'Années 80',
       'Années 90',
+      'Années 2010',
+      'Musique de séries',
+      'Variétés francaises',
+      'Metal',
+      'DanceHall',
+      'Drill',
+      'Electro',
+      'Techno',
+      'Funk',
       'Musique de film',
       'Jazz',
       'R&B',
@@ -137,9 +146,58 @@ const main = async () => {
       'Afrotrap',
       'Bachata',
       'Latino',
-      'Dua Lipa',
+      'Reggae',
+      'Ska',
+      'Blues',
+      'Soul',
+      'Indie Rock',
+      'Punk',
+      'Hard Rock',
+      'Indie Pop',
+      'Alternative',
+      'Grunge',
+      'Salsa',
+      'Merengue',
+      'Reggaeton',
+      'Nouvelle chanson française',
+      'Folk',
+      'Disco',
+      'Techno-House',
+      'Trance',
+      'Ambient',
+      'Soul R&B',
+      'Trip-Hop',
+      'Indie Folk',
+      'Blues Rock',
+      'Progressive Rock',
+      'Glam Rock',
+      'Acid Jazz',
+      'New Wave',
+      'Trap',
+      'Breakbeat',
+      'Big Band',
+      'Swing',
+      'Chanson italienne',
+      'Musique celtique',
+      'K-pop',
+      'J-pop',
+      'Musique classique',
+      'Gospel',
+      'Motown',
+      'Garage Rock',
+      'Bossa Nova',
+      'Celtic Folk',
+      'Heavy Metal',
+      'Synthwave',
+      'Hardstyle',
+      'Bluegrass',
+      'Afrobeat',
+      'Musique indienne',
+      'Flamenco',
+      'Ambient House',
+      'Star Academy'
     ];
-
+    let index = 0;
     for (const themeOnly of playlistNames) {
       // Effectuez la recherche de la playlist
       const resultPlaylistId = await searchPlaylistId(accessToken, themeOnly);
@@ -162,7 +220,11 @@ const main = async () => {
           const previewUrl = trackInfo.track?.preview_url;
           const imageUrl = trackInfo.track?.album?.images?.[0]?.url;
 
-          if (previewUrl) {
+          const existingTrack = await prisma.track.findUnique({
+            where: { track_id: trackId || '' },
+          });
+
+          if (!existingTrack && previewUrl !== null) {
             // Utilisez le client Prisma pour insérer dans la base de données
             await prisma.track.create({
               data: {
@@ -174,12 +236,13 @@ const main = async () => {
                 theme: themeOnly || '',
               },
             });
-
+            index = index + 1;
             console.log(`Nom de la piste: ${trackName}`);
             console.log(`Artiste: ${trackArtist}`);
             console.log(`ID Spotify: ${trackId}`);
             console.log(`URL de prévisualisation: ${previewUrl}`);
             console.log(`URL de l'image: ${imageUrl}`);
+            console.log(`numéro de document: ${index}`);
             console.log('\n');
           }
         }
