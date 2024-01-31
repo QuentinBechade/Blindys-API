@@ -4,12 +4,15 @@ import {
     Body,
     Logger,
     InternalServerErrorException,
+    UseGuards,
+    Request, Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {ApiBearerAuth, ApiOkResponse, ApiTags} from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { AuthEntity } from './entities/auth.entity';
+import {AuthGuard} from "./auth.guard";
 
 @Controller('auth')
 @ApiTags('auth')
@@ -60,17 +63,20 @@ export class AuthController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Post('refresh-access-token')
+    @ApiBearerAuth()
     @ApiOkResponse({ description: 'Refresh token' })
-    async refreshToken(@Body() token: { accessToken: string }) {
+    async refreshToken(@Request() req) {
         try {
             this.logger.log(`Rafraîchissement du token d'accès`);
-            return await this.authService.refreshAccessToken(token.accessToken);
+            return await this.authService.refreshAccessToken(req.user);
         } catch (e) {
             this.logger.error(` ${e.message}`);
             throw new InternalServerErrorException(e.message);
         }
     }
+
 }
 
 // test add azur

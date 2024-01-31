@@ -7,7 +7,7 @@ import {
   Delete,
   Put,
   Logger,
-  InternalServerErrorException,
+  InternalServerErrorException, UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +19,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
+import {AuthGuard} from "../auth/auth.guard";
 //import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('users')
@@ -46,6 +47,7 @@ export class UserController {
   /**
    * Retrieves all users
    */
+  @UseGuards(AuthGuard)
   @Get()
   @ApiBearerAuth()
   @ApiOkResponse({ description: 'Get all users', type: [UserEntity] })
