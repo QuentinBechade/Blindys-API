@@ -155,19 +155,16 @@ export class AuthService {
    * vérifie si un jeton de rafraîchissement correspondant existe pour l'utilisateur, et renvoie
    * un nouveau jeton d'accès en cas de rafraîchissement réussi.
    *
-   * @param {string} accessToken - Le jeton d'accès à rafraîchir.
+   * @param {any} user - Le jeton d'accès à rafraîchir.
    * @returns {Promise<{ accessToken : string }>} Une promesse qui se résout avec le jeton d'accès actualisé.
    */
   async refreshAccessToken(
-    accessToken: string,
+    user: any,
   ): Promise<{ accessToken: string }> {
-    // Decode the provided access token to extract user information
-    const data = decodeToken(accessToken);
-
     // Check if a corresponding refresh token exists for the user
     const refreshTokenExists = await this.prisma.refreshToken.findFirst({
       where: {
-        userId: data.userId,
+        userId: user.userId,
       },
     });
 
@@ -183,7 +180,7 @@ export class AuthService {
     }
 
     // Generate a new access token and return it
-    const newAccessToken = await generateAccessToken(data.userId);
+    const newAccessToken = await generateAccessToken(user.userId);
     return { accessToken: newAccessToken };
   }
 
